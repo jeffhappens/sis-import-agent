@@ -38,9 +38,6 @@
             die('Could not connect to the Canvas API. Exiting'."\n");
         }
         curl_close($ch); // Collect the garbage
-        echo 'Connected to the Canvas API'."\n";
-        echo 'SIS Import Started'."\n";
-
         // Once the import is started the API will return a JSON object with details about the job
         // Here is an example response:
         /*
@@ -109,7 +106,6 @@
         while(1) {
                 sleep(1); // Do not abuse the API. Run the loop once per second
                 $status = json_decode(file_get_contents($apiurl.'accounts/'.$account_id.'/sis_imports/'.$id.'?access_token='.$apitoken));
-                echo ucwords($status->workflow_state).' : '.$status->progress.'%'."\r";
                 // Once we reach status->100 and workflow_state->imported we break out of the loop.
                 if($status->progress === 100 && $status->workflow_state === 'imported') {
                         // SIS import has completed
@@ -120,7 +116,6 @@
                         fclose($logfile);
 
                         // Report success to the command line and cron_log.txt
-                        echo 'Complete'."\n";
                         foreach($status->data->counts as $key=>$value) {
                             if($value !== 0) {
                                 echo $value.' '.$key.'(s) processed'."\n";
