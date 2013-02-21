@@ -3,11 +3,18 @@
     // One argument is required: The name of the file to send
     // Usage: php import2.php <filename>.csv
     // Make sure a filename has been provided and that it dies exist:
+    $errors = array(
+        'invalidFile' => 'No input file found',
+        'couldNotConnect' => 'Could not connect to the Canvas API. SIS Import has exited',
+    );
+
     if(!isset($argv[1]) || !file_exists($argv[1])) {
-        die('Please supply a valid file name to send'."\n");
+        die($errors['invalidFile']."\n");
     }
+    
     // Continue if we get a valid file
     // Values that script will need to connect to the API
+    $baseUrl = '<path to script>/';
     $apiurl = '<domain>/api/v1/';
     $apitoken = '<api token>';
     $account_id = '<account id>';
@@ -30,7 +37,7 @@
     $result = curl_exec($ch); // Start the transfer
     $connection_status = curl_getinfo($ch);
     if($connection_status['http_code'] !== 200) {
-        die('Could not connect to the Canvas API. Exiting'."\n");
+        die($errors['couldNotConnect']."\n");
     }
     curl_close($ch); // Collect the garbage
 
@@ -110,7 +117,7 @@
             // move the file out of the DataFileDrop dir and into the Archive
             $fileToMove = basename($argv[1]);
             // datestamp the file so that we can refer back to it later
-            if(copy($argv[1], 'E:/inetpub/Canvas/Uploads/Imports/Archive/'.@date('m-d-Y-h-i-s').'-'.$fileToMove)) {
+            if(copy($argv[1], $baseUrl.'Archive/'.@date('m-d-Y-h-i-s').'-'.$fileToMove)) {
                 unlink($argv[1]);
             }
             break;
